@@ -5,13 +5,10 @@ import argparse
 from openpyxl import Workbook, load_workbook
 from datetime import datetime
 
-
 def extract_zip(zip_file_path, extract_to):
     """Extracts the contents of a zip file to a specified directory."""
     with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
         zip_ref.extractall(extract_to)
-
-      
 def generate_output_filename(meeting_name):
     """Generates a unique output filename by appending a number if the file already exists."""
     base_name = f'RnD_{meeting_name.replace(" ", "_")}_Data'
@@ -21,27 +18,8 @@ def generate_output_filename(meeting_name):
         output_file_name = f'{base_name}_{count}.xlsx'
         count += 1
     return output_file_name
-
-
-def read_leave_data(leave_file_path):
-    """Reads the leave data from an Excel file and returns it as a dictionary."""
-    leave_data = {}
-    try:
-        wb = load_workbook(leave_file_path)
-        sheet = wb.active
-        for row in sheet.iter_rows(min_row=2, values_only=True):
-            leave_date = row[0]
-            if isinstance(leave_date, str):  # Handle non-date input
-                leave_date = datetime.strptime(leave_date, '%Y-%m-%d')
-            emails = row[1] if row[1] else ""
-            email_list = emails.split(",") if emails else []
-            leave_data[leave_date.strftime('%Y-%m-%d')] = [email.strip() for email in email_list]
-    except Exception as e:
-        print(f"Error reading leave data: {e}")
-    return leave_data
-
 def compile_attendee_data(zip_file_path, meeting_name, start_date, end_date, email_list):
-    """Compiles meeting attendee data from Excel files, considering leaves on different dates."""
+    """Compiles meeting attendee data from Excel files"""
     result_dict = {}
     with tempfile.TemporaryDirectory() as temp_dir:
         extract_zip(zip_file_path, temp_dir)
